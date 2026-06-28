@@ -3,6 +3,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 // import { env } from "./config/env.js";
 import authRouter from "./routers/auth.route.js"
+import errorHandler from "./middleware/error.middleware.js";
 
 
 const app = express();
@@ -13,7 +14,6 @@ const app = express();
 //     credentials: true,
 //   }),
 // );
-
 
 app.use(express.json());
 
@@ -28,5 +28,6 @@ app.get("/api/v1/health", (req, res) => {
 
 app.use("/api/v1/auth",authRouter);
 
+app.use(errorHandler)
 
 export default app;
