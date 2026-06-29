@@ -13,10 +13,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id String @id  @default(cuid())
-  username String @unique
-  password String
-  email String  @unique
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  is_verified Boolean  @default(false)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  urls          Url[]
+  refreshTokens RefreshToken[]
+
   @@map("users")
+}
+
+model Url {
+  id           String    @id @default(cuid())
+  original_url String
+  short_code   String    @unique
+  clicks       Int       @default(0)
+  expires_at   DateTime?
+  user_id      String
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
+
+  click_events ClickEvent[]
+
+  @@index([user_id])
+  @@map("urls")
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  token_id   String @unique
+  token_hash String
+  user_id    String
+  expires_at DateTime
+  is_revoked Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@map("ref_tokens")
+}
+
+model ClickEvent {
+  id               String   @id @default(cuid())
+  url_id           String
+  clicked_at       DateTime @default(now())
+  ip_address       String?
+  country          String?
+  city             String?
+  browser          String?
+  operating_system String?
+  device_type      String?
+  user_agent       String?
+  referrer         String?
+
+  url Url @relation(fields: [url_id], references: [id])
+
+  @@index([url_id, clicked_at])
+  @@map("click_events")
 }

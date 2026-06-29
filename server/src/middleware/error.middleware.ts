@@ -7,7 +7,7 @@ const errorHandler = (err:Error|ApiError, req:Request, res:Response, next:NextFu
 
     res.status(statusCode).json({
         success: false,
-        message: err.message
+        message: err instanceof ApiError ? err.message : "Internal Server Error"
     });
 
 };
