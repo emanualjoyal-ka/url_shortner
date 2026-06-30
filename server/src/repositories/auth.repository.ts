@@ -32,10 +32,13 @@ export const userRepository={
         return refreshTokenTable.findUnique({where:{token_id:tokenId}})
     },
 
-    
-
-
-
-
-
+    rotateRefreshToken:async(tokenId:string,data:RefreshTokenCreateDTO)=>{
+        return prisma.$transaction(async(tx)=>{
+            await tx.refreshToken.update({
+                where:{token_id:tokenId},
+                data:{is_revoked:true}
+            })
+            await tx.refreshToken.create({data})
+        })
+    }
 }

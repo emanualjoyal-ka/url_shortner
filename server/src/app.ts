@@ -2,7 +2,9 @@ import express from "express";
 // import cors from "cors";
 import cookieParser from "cookie-parser";
 // import { env } from "./config/env.js";
-import authRouter from "./routers/auth.route.js"
+import authRouter from "./routers/auth.route.js";
+import urlRouter from "./routers/url.route.js";
+import adminRouter from "./routers/admin.route.js";
 import errorHandler from "./middleware/error.middleware.js";
 
 
@@ -27,6 +29,8 @@ app.get("/api/v1/health", (req, res) => {
 });
 
 app.use("/api/v1/auth",authRouter);
+app.use("/api/v1/url",urlRouter)
+app.use("/api/v1/admin",adminRouter);
 
 app.use(errorHandler)
 
