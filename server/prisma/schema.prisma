@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role{
+  USER
+  ADMIN
+}
+
 model User {
   id          String   @id @default(cuid())
   username    String   @unique
@@ -22,7 +27,7 @@ model User {
   is_active   Boolean  @default(true)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-
+  role        Role     @default(USER)
   urls          Url[]
   refreshTokens RefreshToken[]
 
@@ -64,13 +69,11 @@ model RefreshToken {
   @@map("ref_tokens")
 }
 
-model ClickEvent {
+model ClickEvent {  // ADD County and City on next version
   id               String   @id @default(cuid())
   url_id           String
   clicked_at       DateTime @default(now())
   ip_address       String?
-  country          String?
-  city             String?
   browser          String?
   operating_system String?
   device_type      String?

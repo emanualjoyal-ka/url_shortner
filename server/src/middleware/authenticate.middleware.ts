@@ -9,6 +9,7 @@ declare global { // we modify the expresse's Request by adding user property
       user?: {
         userId: string;
         token_id: string;
+        role:string
       };
     }
   }
@@ -31,6 +32,7 @@ export const authenticate = async (req: Request,_res: Response,next: NextFunctio
   req.user = {
     userId: payload.userId,
     token_id: payload.token_id,
+    role:payload.role
   };
   next();
 };

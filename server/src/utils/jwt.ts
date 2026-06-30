@@ -5,6 +5,7 @@ import { env } from "../config/env.js";
 interface JwtPayload {
   userId: string;
   token_id:string;
+  role:string
 }
 
 export const generateAccessToken =

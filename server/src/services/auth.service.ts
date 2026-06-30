@@ -34,8 +34,8 @@ export const userServices={
             throw new ApiError("Invalid password",404)
         }
         const token_Id=uuidv4()
-        const accessToken=generateAccessToken({userId:user.id.toString(),token_id:token_Id})
-        const refreshToken=generateRefreshToken({userId:user.id.toString(),token_id:token_Id})
+        const accessToken=generateAccessToken({userId:user.id.toString(),token_id:token_Id,role:user.role})
+        const refreshToken=generateRefreshToken({userId:user.id.toString(),token_id:token_Id,role:user.role})
         const hashedRefreshToken=await bcrypt.hash(refreshToken,10)
 
         await userRepository.createRefreshToken({
@@ -64,7 +64,7 @@ export const userServices={
         }
     },
 
-    refreshAccessToken:async(token?:string):Promise<RefreshTokenResponseDTO & {refreshToken:string}>=>{
+    refreshAccessToken:async(token?:string):Promise<RefreshTokenResponseDTO & {refreshToken:string}>=>{ 
         if(!token){
             throw new ApiError("No refresh token provided",401)
         }
@@ -81,19 +81,16 @@ export const userServices={
         if(!is_token){
             throw new ApiError("Invalid refresh token",401)
         }
-        await userRepository.revokeToken(payload.token_id)
         const newTokenId=uuidv4()
-        const newAccessToken=generateAccessToken({userId:user.id.toString(),token_id:newTokenId})
-        const newRefreshToken=generateRefreshToken({userId:user.id.toString(),token_id:newTokenId});
+        const newAccessToken=generateAccessToken({userId:user.id.toString(),token_id:newTokenId,role:user.role})
+        const newRefreshToken=generateRefreshToken({userId:user.id.toString(),token_id:newTokenId,role:user.role});
         const hashedRefreshToken=await bcrypt.hash(newRefreshToken,10);
-
-        await userRepository.createRefreshToken({
+        await userRepository.rotateRefreshToken(payload.token_id,{
             user_id:user.id,
             token_hash:hashedRefreshToken,
             token_id:newTokenId,
             expires_at:new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
         })
-
         return {
             accessToken:newAccessToken,
             refreshToken:newRefreshToken,
