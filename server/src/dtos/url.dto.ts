@@ -35,10 +35,29 @@ export type GetAllUrlsDTO=GetAllUrlsAdminDTO & {
     userId:string;
 }
 
-export type AdminUrlResponseDTO= {
+export type ResponseUrlDTO= {
   original_url: string;
   short_code: string;
   clicks: number;
   created_at: Date;
   updated_at: Date;
 }
+
+export type PaginationDTO = {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+export type AdminUrlResponseDTO= {
+  data:ResponseUrlDTO[];
+  pagination:PaginationDTO;
+}
+
+export type UpdateUrlDTO = {
+  original_url?: string;
+  expires_at?: Date | null;
+};
