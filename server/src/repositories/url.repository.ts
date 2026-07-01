@@ -1,9 +1,8 @@
 import prisma from "../config/prisma.js"
-import type { CreateClickEventDTO, CreateUrlRepositoryDTO, GetAllUrlsAdminDTO, GetAllUrlsDTO} from "../dtos/url.dto.js"
+import type { CreateClickEventDTO, CreateUrlRepositoryDTO, GetAllUrlsDTO, UpdateUrlDTO} from "../dtos/url.dto.js"
 
 
 const urlTable=prisma.url
-const clickEventTable=prisma.clickEvent
 
 export const urlRepository={
     createUrl:(data:CreateUrlRepositoryDTO)=>{
@@ -21,36 +20,63 @@ export const urlRepository={
         })
     },
 
-    getAllUrls:({page,limit,userId}:GetAllUrlsDTO)=>{
+    getAllUrls:async({page,limit,userId}:GetAllUrlsDTO)=>{
         const skip=(page-1)*limit;
-        return urlTable.findMany({
+        const [urls,totalItems]=await Promise.all([
+            urlTable.findMany({
             skip:skip,
             take:limit,
             where:{
-                user_id:userId
+                user_id:userId,
+                deleted_at:null
             },
             select:{
                 original_url:true,
                 short_code:true,
                 clicks:true,
                 created_at:true,
-                updated_at:true
+                updated_at:true,
+                expires_at:true,
+                is_active:true
+            },
+            orderBy:{
+                created_at:"desc"
+            }
+        }),
+        urlTable.count({
+            where:{
+                user_id:userId,
+                deleted_at:null
+            }
+        })
+        
+        ])
+        return{
+            urls,
+            totalItems
+        }
+    },
+
+    deleteUrl:(shortCode:string,userId:string)=>{
+        return urlTable.updateMany({
+            where:{
+                short_code:shortCode,
+                user_id:userId,
+                deleted_at:null
+            },
+            data:{
+                deleted_at:new Date()
             }
         })
     },
 
-    getAllUrlsAdmin:({page,limit}:GetAllUrlsAdminDTO)=>{
-        const skip=(page-1)*limit;
-        return urlTable.findMany({
-            skip:skip,
-            take:limit,
-            select:{
-                original_url:true,
-                short_code:true,
-                clicks:true,
-                created_at:true,
-                updated_at:true
-            }
+    updateUrl:(shortCode:string,userId:string,data:UpdateUrlDTO)=>{
+        return urlTable.updateMany({
+            where:{
+                short_code:shortCode,
+                user_id:userId
+            },
+            data
         })
     }
 }

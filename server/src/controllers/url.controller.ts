@@ -30,3 +30,22 @@ export const getAllUrls=async(req:Request,res:Response)=>{
         data:repsonse
     })
 }
+
+export const deleteUrl=async(req:Request,res:Response)=>{
+    const userId=req.user!.userId;
+    const shortCode=req.params.shortCode
+    await urlServices.deleteUrl(shortCode,userId)
+    return sendResponse(res,{
+        statusCode:200,
+        message:"URL deleted successfully"
+    })
+}
+
+export const updateUrl=async(req:Request,res:Response)=>{
+    const userId=req.user!.userId;
+    const shortCode=req.params.shortCode
+    await urlServices.updateUrl(shortCode,userId,req.body)
+    return sendResponse(res,{
+        statusCode:204
+    })
+}
